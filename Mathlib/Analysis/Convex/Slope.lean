@@ -5,7 +5,6 @@ Authors: Yury Kudryashov, Malo Jaffré
 -/
 import Mathlib.Analysis.Convex.Function
 import Mathlib.Tactic.AdaptationNote
-import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.Linarith
 
 /-!
@@ -30,7 +29,7 @@ theorem ConvexOn.slope_mono_adjacent (hf : ConvexOn 𝕜 s f) {x y z : 𝕜} (hx
     linarith
   set a := (z - y) / (z - x)
   set b := (y - x) / (z - x)
-  have hy : a • x + b • z = y := by simp [field, a, b]; ring
+  have hy : a • x + b • z = y := by simp [a, b]; field
   have key :=
     hf.2 hx hz (show 0 ≤ a by apply div_nonneg <;> linarith)
       (show 0 ≤ b by apply div_nonneg <;> linarith)
@@ -65,7 +64,7 @@ theorem StrictConvexOn.slope_strict_mono_adjacent (hf : StrictConvexOn 𝕜 s f)
     linarith
   set a := (z - y) / (z - x)
   set b := (y - x) / (z - x)
-  have hy : a • x + b • z = y := by simp [field, a, b]; ring
+  have hy : a • x + b • z = y := by simp [a, b]; field
   have key :=
     hf.2 hx hz hxz' (div_pos hyz hxz) (div_pos hxy hxz)
       (show a + b = 1 by simp [field, a, b])
@@ -229,15 +228,9 @@ theorem ConvexOn.secant_mono_aux1 (hf : ConvexOn 𝕜 s f) {x y z : 𝕜} (hx : 
   have ha : 0 ≤ (z - y) / (z - x) := by positivity
   have hb : 0 ≤ (y - x) / (z - x) := by positivity
   calc
-    f y = f ((z - y) / (z - x) * x + (y - x) / (z - x) * z) := ?_
-    _ ≤ (z - y) / (z - x) * f x + (y - x) / (z - x) * f z := hf.2 hx hz ha hb ?_
-    _ = ((z - y) * f x + (y - x) * f z) / (z - x) := ?_
-  · congr 1
-    field_simp
-    ring
-  · field_simp
-    ring
-  · field_simp
+    f y = f ((z - y) / (z - x) * x + (y - x) / (z - x) * z) := by congr 1; field
+    _ ≤ (z - y) / (z - x) * f x + (y - x) / (z - x) * f z := hf.2 hx hz ha hb (by field)
+    _ = ((z - y) * f x + (y - x) * f z) / (z - x) := by field
 
 theorem ConvexOn.secant_mono_aux2 (hf : ConvexOn 𝕜 s f) {x y z : 𝕜} (hx : x ∈ s) (hz : z ∈ s)
     (hxy : x < y) (hyz : y < z) : (f y - f x) / (y - x) ≤ (f z - f x) / (z - x) := by
@@ -276,15 +269,10 @@ theorem StrictConvexOn.secant_strict_mono_aux1 (hf : StrictConvexOn 𝕜 s f) {x
   have ha : 0 < (z - y) / (z - x) := by positivity
   have hb : 0 < (y - x) / (z - x) := by positivity
   calc
-    f y = f ((z - y) / (z - x) * x + (y - x) / (z - x) * z) := ?_
-    _ < (z - y) / (z - x) * f x + (y - x) / (z - x) * f z := hf.2 hx hz (by linarith) ha hb ?_
-    _ = ((z - y) * f x + (y - x) * f z) / (z - x) := ?_
-  · congr 1
-    field_simp
-    ring
-  · field_simp
-    ring
-  · field_simp
+    f y = f ((z - y) / (z - x) * x + (y - x) / (z - x) * z) := by congr 1; field
+    _ < (z - y) / (z - x) * f x + (y - x) / (z - x) * f z :=
+        hf.2 hx hz (by linarith) ha hb (by field)
+    _ = ((z - y) * f x + (y - x) * f z) / (z - x) := by field
 
 theorem StrictConvexOn.secant_strict_mono_aux2 (hf : StrictConvexOn 𝕜 s f) {x y z : 𝕜} (hx : x ∈ s)
     (hz : z ∈ s) (hxy : x < y) (hyz : y < z) : (f y - f x) / (y - x) < (f z - f x) / (z - x) := by
@@ -321,7 +309,7 @@ theorem StrictConcaveOn.secant_strict_mono (hf : StrictConcaveOn 𝕜 s f) {a x 
   have key := hf.neg.secant_strict_mono ha hx hy hxa hya hxy
   simp only [Pi.neg_apply] at key
   rw [← neg_lt_neg_iff]
-  convert key using 1 <;> simp <;> ring
+  convert key using 1 <;> field
 
 /-- If `f` is convex on a set `s` in a linearly ordered field, and `f x < f y` for two points
 `x < y` in `s`, then `f` is strictly monotone on `s ∩ [y, ∞)`. -/

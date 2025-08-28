@@ -305,7 +305,7 @@ theorem continuous_lim (c : CU P) : Continuous c.lim := by
       rw [dist_self, zero_add]
       set r := (3 / 4 : ℝ) ^ n
       calc _ ≤ (r / 2 + r) / 2 := by gcongr
-        _ = _ := by field_simp; ring
+        _ = _ := by field
 
 end CU
 

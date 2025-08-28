@@ -193,8 +193,7 @@ theorem discr_powerBasis_eq_prod'' [Algebra.IsSeparable K L] (e : Fin pb.dim ≃
     rw [← hn, Nat.one_le_iff_ne_zero, ← zero_lt_iff, Module.finrank_pos_iff]
     infer_instance
   rw [hn, Nat.cast_div h₂ hne, Nat.cast_mul, Nat.cast_sub hle]
-  field_simp
-  ring
+  field
 
 /-- Formula for the discriminant of a power basis using the norm of the field extension. -/
 -- Porting note: `(minpoly K pb.gen).derivative` does not work anymore.
