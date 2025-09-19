@@ -770,6 +770,7 @@ theorem Away.isLocalization_mul (hd : d ≠ 0) :
         (g ^ e * f ^ (2 * e + d)) <| by
       convert SetLike.mul_mem_graded (SetLike.pow_mem_graded e hg)
         (SetLike.pow_mem_graded (2 * e + d) hf) using 2
+      simp only [smul_eq_mul]
       ring
     refine (isUnit_iff_exists_inv.mpr ⟨z, ?_⟩).pow _
     ext

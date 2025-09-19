@@ -5,6 +5,7 @@ Authors: Antoine Chambert-Loir, María Inés de Frutos-Fernández
 -/
 import Mathlib.Data.Nat.Factorial.NatCast
 import Mathlib.RingTheory.DividedPowers.Basic
+import Mathlib.Tactic.LinearCombination
 
 /-! # Examples of divided power structures
 
@@ -83,10 +84,9 @@ theorem dpow_add_of_lt {n : ℕ} (hn_fac : IsUnit ((n - 1)! : A)) {m : ℕ} (hmn
     Finset.mul_sum, Commute.add_pow' (Commute.all _ _)]
   apply Finset.sum_congr rfl
   intro k hk
-  rw [if_pos hx, if_pos hy]
-  ring_nf
-  simp only [mul_assoc]; congr; rw [← mul_assoc]
-  exact castChoose_eq (hn_fac.natCast_factorial_of_lt hmn) hk
+  rw [if_pos hx, if_pos hy, nsmul_eq_mul]
+  convert congr(x ^ k.1 * y ^ k.2 * $(castChoose_eq (hn_fac.natCast_factorial_of_lt hmn) hk))
+    using 1 <;> ring
 
 theorem dpow_add {n : ℕ} (hn_fac : IsUnit ((n - 1)! : A)) (hnI : I ^ n = 0) {m : ℕ} {x : A}
     (hx : x ∈ I) {y : A} (hy : y ∈ I) :

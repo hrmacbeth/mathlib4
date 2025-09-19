@@ -56,6 +56,8 @@ private theorem mk_mul_le_of_le {x₁ y₁ x₂ y₂ : R} (hx : mk x₁ ≤ mk x
   use m * n
   convert mul_le_mul hm hn (abs_nonneg _) (nsmul_nonneg (abs_nonneg _) _) using 1 <;>
     simp_rw [ArchimedeanOrder.val_of, abs_mul]
+  simp only [nsmul_eq_mul]
+  push_cast
   ring
 
 /-- Multipilication in `R` transfers to Addition in `ArchimedeanClass R`. -/

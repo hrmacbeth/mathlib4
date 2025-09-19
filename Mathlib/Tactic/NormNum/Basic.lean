@@ -104,14 +104,21 @@ theorem isNat_natAbs_neg : {n : ℤ} → {a : ℕ} → IsInt n (.negOfNat a) →
 theorem isNat_natCast {R} [AddMonoidWithOne R] (n m : ℕ) :
     IsNat n m → IsNat (n : R) m := by rintro ⟨⟨⟩⟩; exact ⟨rfl⟩
 
+/-- The result of casting a norm_num Nat result to a new type. -/
+def Result.natCast {a : Q(ℕ)} (ra : Result q($a)) {u : Level} (α : Q(Type u))
+    (sα : Q(AddMonoidWithOne $α) := by exact q(delta% inferInstance)) :
+    MetaM (Result q(Nat.cast (R := $α) $a)) := do
+  let .isNat _ na pa := ra | failure
+  assumeInstancesCommute
+  return .isNat sα na q(isNat_natCast $a $na $pa)
+
 /-- The `norm_num` extension which identifies an expression `Nat.cast n`, returning `n`. -/
 @[norm_num Nat.cast _, NatCast.natCast _] def evalNatCast : NormNumExt where eval {u α} e := do
   let sα ← inferAddMonoidWithOne α
   let .app n (a : Q(ℕ)) ← whnfR e | failure
   guard <|← withNewMCtxDepth <| isDefEq n q(Nat.cast (R := $α))
-  let ⟨na, pa⟩ ← deriveNat a q(instAddMonoidWithOneNat)
-  haveI' : $e =Q $a := ⟨⟩
-  return .isNat sα na q(isNat_natCast $a $na $pa)
+  let ra ← derive a
+  ra.natCast α
 
 theorem isNat_intCast {R} [Ring R] (n : ℤ) (m : ℕ) :
     IsNat n m → IsNat (n : R) m := by rintro ⟨⟨⟩⟩; exact ⟨by simp⟩
@@ -119,21 +126,26 @@ theorem isNat_intCast {R} [Ring R] (n : ℤ) (m : ℕ) :
 theorem isintCast {R} [Ring R] (n m : ℤ) :
     IsInt n m → IsInt (n : R) m := by rintro ⟨⟨⟩⟩; exact ⟨rfl⟩
 
+/-- The result of casting a norm_num Int result to a new type. -/
+def Result.intCast {a : Q(ℤ)} (ra : Result q($a)) {u : Level} (α : Q(Type u))
+    (rα : Q(Ring $α) := by exact q(delta% inferInstance)) :
+    MetaM (Result q(Int.cast (R := $α) $a)) := do
+  match ra with
+  | .isNat _ na pa =>
+    assumeInstancesCommute
+    return .isNat _ na q(isNat_intCast $a $na $pa)
+  | .isNegNat _ na pa =>
+    assumeInstancesCommute
+    return .isNegNat _ na q(isintCast $a (.negOfNat $na) $pa)
+  | _ => failure
+
 /-- The `norm_num` extension which identifies an expression `Int.cast n`, returning `n`. -/
 @[norm_num Int.cast _, IntCast.intCast _] def evalIntCast : NormNumExt where eval {u α} e := do
   let rα ← inferRing α
   let .app i (a : Q(ℤ)) ← whnfR e | failure
   guard <|← withNewMCtxDepth <| isDefEq i q(Int.cast (R := $α))
-  match ← derive (α := q(ℤ)) a with
-  | .isNat _ na pa =>
-    assumeInstancesCommute
-    haveI' : $e =Q Int.cast $a := ⟨⟩
-    return .isNat _ na q(isNat_intCast $a $na $pa)
-  | .isNegNat _ na pa =>
-    assumeInstancesCommute
-    haveI' : $e =Q Int.cast $a := ⟨⟩
-    return .isNegNat _ na q(isintCast $a (.negOfNat $na) $pa)
-  | _ => failure
+  let ra ← derive (α := q(ℤ)) a
+  ra.intCast (a := a) α
 
 /-! # Arithmetic -/
 
