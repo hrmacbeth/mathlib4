@@ -79,100 +79,102 @@ variable {σ σ' σ'' τ τ' τ'' : Π x : M, V x}
 -- set_option trace.profiler true
 -- set_option profiler.threshold 500
 
-/-- The scalar product of two sections. -/
-noncomputable abbrev product (σ τ : Π x : M, V x) : M → ℝ :=
-  fun x ↦ inner ℝ (σ x) (τ x)
+-- /-- The scalar product of two sections. -/
+-- noncomputable abbrev product (σ τ : Π x : M, V x) : M → ℝ :=
+--   fun x ↦ inner ℝ (σ x) (τ x)
 
 -- `product` is C^k if σ and τ are: this is shown in `Riemannian.lean`
 
-local notation "⟪" σ ", " τ "⟫" => product σ τ
+-- local notation "⟪" σ ", " τ "⟫" => product σ τ
+local notation "⟪" σ ", " τ "⟫" => fun x ↦ inner ℝ (σ x) (τ x)
 
--- Basic API for the product of two sections.
-section product
+-- -- Basic API for the product of two sections.
+-- section product
 
-omit [TopologicalSpace M]
+-- omit [TopologicalSpace M]
 
-lemma product_apply (x) : ⟪σ, τ⟫ x = inner ℝ (σ x) (τ x) := rfl
+-- -- lemma product_apply (x) : ⟪σ, τ⟫ x = inner ℝ (σ x) (τ x) := rfl
 
-variable (σ σ' τ)
+-- variable (σ σ' τ)
 
-lemma product_swap : ⟪τ, σ⟫ = ⟪σ, τ⟫ := by
-  ext x
-  apply real_inner_comm
+-- -- lemma product_swap : ⟪τ, σ⟫ = ⟪σ, τ⟫ := by
+-- --   ext x
+-- --   apply real_inner_comm
 
-@[simp]
-lemma product_zero_left : ⟪0, σ⟫ = 0 := by
-  ext x
-  simp only [product, Pi.zero_apply, inner_zero_left]
+-- -- @[simp]
+-- -- lemma product_zero_left : ⟪0, σ⟫ = 0 := by
+-- --   ext x
+-- --   simp only [product, Pi.zero_apply, inner_zero_left]
 
-@[simp]
-lemma product_zero_right : ⟪σ, 0⟫ = 0 := by rw [product_swap, product_zero_left]
+-- -- @[simp]
+-- -- lemma product_zero_right : ⟪σ, 0⟫ = 0 := by rw [product_swap, product_zero_left]
 
-lemma product_add_left : ⟪σ + σ', τ⟫ = ⟪σ, τ⟫ + ⟪σ', τ⟫ := by
-  ext x
-  simp [product, InnerProductSpace.add_left]
+-- -- lemma product_add_left : ⟪σ + σ', τ⟫ = ⟪σ, τ⟫ + ⟪σ', τ⟫ := by
+-- --   ext x
+-- --   simp [inner_add_left]
 
-@[simp]
-lemma product_add_left_apply (x) : ⟪σ + σ', τ⟫ x = ⟪σ, τ⟫ x + ⟪σ', τ⟫ x := by
-  simp [product, InnerProductSpace.add_left]
+-- -- @[simp]
+-- -- lemma product_add_left_apply (x) : ⟪σ + σ', τ⟫ x = ⟪σ, τ⟫ x + ⟪σ', τ⟫ x := by
+-- --   simp [product, InnerProductSpace.add_left]
 
-lemma product_add_right : ⟪σ, τ + τ'⟫ = ⟪σ, τ⟫ + ⟪σ, τ'⟫ := by
-  rw [product_swap, product_swap τ, product_swap τ', product_add_left]
+-- -- lemma product_add_right : ⟪σ, τ + τ'⟫ = ⟪σ, τ⟫ + ⟪σ, τ'⟫ := by
+-- --   ext x
+-- --   simp [inner_add_right]
 
-@[simp]
-lemma product_add_right_apply (x) : ⟪σ, τ + τ'⟫ x = ⟪σ, τ⟫ x + ⟪σ, τ'⟫ x := by
-  rw [product_swap, product_swap τ, product_swap τ', product_add_left_apply]
+-- -- @[simp]
+-- -- lemma product_add_right_apply (x) : ⟪σ, τ + τ'⟫ x = ⟪σ, τ⟫ x + ⟪σ, τ'⟫ x := by
+-- --   rw [product_swap, product_swap τ, product_swap τ', product_add_left_apply]
 
-@[simp] lemma product_neg_left : ⟪-σ, τ⟫ = -⟪σ, τ⟫ := by ext x; simp [product]
+-- -- @[simp] lemma product_neg_left : ⟪-σ, τ⟫ = -⟪σ, τ⟫ := by ext x; simp [product]
 
-@[simp] lemma product_neg_right : ⟪σ, -τ⟫ = -⟪σ, τ⟫ := by ext x; simp [product]
+-- -- @[simp] lemma product_neg_right : ⟪σ, -τ⟫ = -⟪σ, τ⟫ := by ext x; simp [product]
 
-lemma product_sub_left : ⟪σ - σ', τ⟫ = ⟪σ, τ⟫ - ⟪σ', τ⟫ := by
-  ext x
-  simp [product, inner_sub_left]
+-- -- lemma product_sub_left : ⟪σ - σ', τ⟫ = ⟪σ, τ⟫ - ⟪σ', τ⟫ := by
+-- --   ext x
+-- --   simp [product, inner_sub_left]
 
-lemma product_sub_right : ⟪σ, τ - τ'⟫ = ⟪σ, τ⟫ - ⟪σ, τ'⟫ := by
-  ext x
-  simp [product, inner_sub_right]
+-- -- lemma product_sub_right : ⟪σ, τ - τ'⟫ = ⟪σ, τ⟫ - ⟪σ, τ'⟫ := by
+-- --   ext x
+-- --   simp [product, inner_sub_right]
 
-lemma product_smul_left (f : M → ℝ) : product (f • σ) τ = f • product σ τ := by
-  ext x
-  simp [product, real_inner_smul_left]
+-- -- lemma product_smul_left (f : M → ℝ) : ⟪(f • σ), τ⟫ = f * ⟪σ, τ⟫ := by
+-- --   ext x
+-- --   simp [real_inner_smul_left]
 
-@[simp]
-lemma product_smul_const_left (a : ℝ) : product (a • σ) τ = a • product σ τ := by
-  ext x
-  simp [product, real_inner_smul_left]
+-- -- @[simp]
+-- -- lemma product_smul_const_left (a : ℝ) : product (a • σ) τ = a • product σ τ := by
+-- --   ext x
+-- --   simp [product, real_inner_smul_left]
 
-lemma product_smul_right (f : M → ℝ) : product σ (f • τ) = f • product σ τ := by
-  ext x
-  simp [product, real_inner_smul_right]
+-- -- lemma product_smul_right (f : M → ℝ) : ⟪σ, (f • τ)⟫ = f * ⟪σ, τ⟫ := by
+-- --   ext x
+-- --   simp [real_inner_smul_right]
 
-@[simp]
-lemma product_smul_const_right (a : ℝ) : product σ (a • τ) = a • product σ τ := by
-  ext x
-  simp [product, real_inner_smul_right]
+-- -- @[simp]
+-- -- lemma product_smul_const_right (a : ℝ) : product σ (a • τ) = a • product σ τ := by
+-- --   ext x
+-- --   simp [product, real_inner_smul_right]
 
-end product
+-- end product
 
--- These lemmas are necessary as my Lie bracket identities (assuming minimal differentiability)
--- only hold point-wise. They abstract the expanding and unexpanding of `product`.
-omit [TopologicalSpace M] in
-lemma product_congr_left {x} (h : σ x = σ' x) : product σ τ x = product σ' τ x := by
-  rw [product_apply, h, ← product_apply]
+-- -- These lemmas are necessary as my Lie bracket identities (assuming minimal differentiability)
+-- -- only hold point-wise. They abstract the expanding and unexpanding of `product`.
+-- omit [TopologicalSpace M] in
+-- lemma product_congr_left {x} (h : σ x = σ' x) : product σ τ x = product σ' τ x := by
+--   rw [product_apply, h, ← product_apply]
 
-omit [TopologicalSpace M] in
-lemma product_congr_left₂ {x} (h : σ x = σ' x + σ'' x) :
-    product σ τ x = product σ' τ x + product σ'' τ x := by
-  rw [product_apply, h, inner_add_left, ← product_apply]
-omit [TopologicalSpace M] in
-lemma product_congr_right {x} (h : τ x = τ' x) : product σ τ x = product σ τ' x := by
-  rw [product_apply, h, ← product_apply]
+-- omit [TopologicalSpace M] in
+-- lemma product_congr_left₂ {x} (h : σ x = σ' x + σ'' x) :
+--     product σ τ x = product σ' τ x + product σ'' τ x := by
+--   rw [product_apply, h, inner_add_left, ← product_apply]
+-- omit [TopologicalSpace M] in
+-- lemma product_congr_right {x} (h : τ x = τ' x) : product σ τ x = product σ τ' x := by
+--   rw [product_apply, h, ← product_apply]
 
-omit [TopologicalSpace M] in
-lemma product_congr_right₂ {x} (h : τ x = τ' x + τ'' x) :
-    product σ τ x = product σ τ' x + product σ τ'' x := by
-  rw [product_apply, h, inner_add_right, ← product_apply]
+-- omit [TopologicalSpace M] in
+-- lemma product_congr_right₂ {x} (h : τ x = τ' x + τ'' x) :
+--     product σ τ x = product σ τ' x + product σ τ'' x := by
+--   rw [product_apply, h, inner_add_right, ← product_apply]
 
 namespace CovariantDerivative
 
@@ -198,7 +200,7 @@ noncomputable def compatibilityTensorAux (σ τ : Π x : M, V x) :
 lemma compatibilityTensorAux_apply (σ τ : Π x : M, V x)
     {x : M} (X₀ : TangentSpace I x) :
     compatibilityTensorAux I cov σ τ x X₀ =
-      NormedSpace.fromTangentSpace _ (mfderiv% ⟪σ, τ⟫ x X₀)
+      mfderiv' I ⟪σ, τ⟫ x X₀
       - inner ℝ (cov σ x X₀) (τ x) - inner ℝ (σ x) (cov τ x X₀) := by
   rw [real_inner_comm]
   rfl
@@ -209,32 +211,30 @@ theorem compatibilityTensorAux_tensorial₁ (τ : Π x, V x) (hτ : MDiffAt (T% 
     TensorialAt I F (compatibilityTensorAux I cov · τ x) x where
   smul hf hσ := by
     ext X₀
-    rw [compatibilityTensorAux_apply, product_smul_left,
-      fromTangentSpace_mfderiv_smul_apply hf (hσ.inner_bundle hτ)]
-    simp [compatibilityTensorAux_apply, cov.isCovariantDerivativeOn.leibniz hσ hf, inner_add_left,
-      inner_smul_left]
+    simp [compatibilityTensorAux_apply,
+      fromTangentSpace_mfderiv_fun_mul_apply₁₇ hf (hσ.inner_bundle hτ),
+      cov.isCovariantDerivativeOn.leibniz hσ hf, inner_add_left, inner_smul_left]
     ring
   add hσ hσ' := by
     ext X₀
-    rw [compatibilityTensorAux_apply, product_add_left,
-      fromTangentSpace_mfderiv_add_apply (hσ.inner_bundle hτ) (hσ'.inner_bundle hτ)]
-    simp [compatibilityTensorAux_apply, cov.isCovariantDerivativeOn.add hσ hσ', inner_add_left]
+    simp [compatibilityTensorAux_apply,
+      mfderiv'_fun_add (hσ.inner_bundle hτ) (hσ'.inner_bundle hτ),
+      cov.isCovariantDerivativeOn.add hσ hσ', inner_add_left]
     abel
 
 theorem compatibilityTensorAux_tensorial₂ (σ : Π x, V x) (hσ : MDiffAt (T% σ) x) :
     TensorialAt I F (compatibilityTensorAux I cov σ · x) x where
   smul hf hτ := by
     ext X₀
-    rw [compatibilityTensorAux_apply, product_smul_right,
-      fromTangentSpace_mfderiv_smul_apply hf (hσ.inner_bundle hτ)]
-    simp [compatibilityTensorAux_apply, cov.isCovariantDerivativeOn.leibniz hτ hf, inner_add_right,
-      inner_smul_right]
+    simp [compatibilityTensorAux_apply,
+      fromTangentSpace_mfderiv_fun_mul_apply₁₇ hf (hσ.inner_bundle hτ),
+      cov.isCovariantDerivativeOn.leibniz hτ hf, inner_add_right, inner_smul_right]
     ring
   add hτ hτ' := by
     ext X₀
-    rw [compatibilityTensorAux_apply, product_add_right,
-      fromTangentSpace_mfderiv_add_apply (hσ.inner_bundle hτ) (hσ.inner_bundle hτ')]
-    simp [compatibilityTensorAux_apply, cov.isCovariantDerivativeOn.add hτ hτ', inner_add_right]
+    simp [compatibilityTensorAux_apply,
+      mfderiv'_fun_add (hσ.inner_bundle hτ) (hσ.inner_bundle hτ'),
+      cov.isCovariantDerivativeOn.add hτ hτ', inner_add_right]
     abel
 
 variable {I} [ContMDiffVectorBundle 1 F V I] in
@@ -251,7 +251,7 @@ variable {I} [ContMDiffVectorBundle 1 F V I] in
 theorem compatibilityTensor_apply [FiniteDimensional ℝ F] (x : M)
     (hσ : MDiffAt (T% σ) x) (hτ : MDiffAt (T% τ) x) :
     cov.compatibilityTensor x (σ x) (τ x) (X x) =
-    fromTangentSpace _ (mfderiv% ⟪σ, τ⟫ x (X x)) - ⟪∇ X σ, τ⟫ x - ⟪σ, ∇ X τ⟫ x := by
+    mfderiv' I ⟪σ, τ⟫ x (X x) - ⟪∇ X σ, τ⟫ x - ⟪σ, ∇ X τ⟫ x := by
   unfold compatibilityTensor
   rw [TensorialAt.mkHom₂_apply _ _ hσ hτ, compatibilityTensorAux_apply]
 
@@ -259,7 +259,7 @@ variable {I} [ContMDiffVectorBundle 1 F V I] in
 theorem compatibilityTensor_apply_eq_extend [FiniteDimensional ℝ F] (X₀ : TangentSpace I x)
     (σ₀ τ₀ : V x) :
     cov.compatibilityTensor x σ₀ τ₀ X₀ =
-      fromTangentSpace _ (mfderiv% ⟪(FiberBundle.extend F σ₀), (FiberBundle.extend F τ₀)⟫ x X₀)
+      mfderiv' I ⟪(FiberBundle.extend F σ₀), (FiberBundle.extend F τ₀)⟫ x X₀
         - inner ℝ (cov (FiberBundle.extend F σ₀) x X₀) τ₀
         - inner ℝ σ₀ (cov (FiberBundle.extend F τ₀) x X₀) := by
   simp [compatibilityTensor, TensorialAt.mkHom₂_apply_eq_extend, compatibilityTensorAux_apply]
@@ -275,17 +275,15 @@ variable {I} [IsManifold I 1 M] [ContMDiffVectorBundle 1 F V I]
 lemma isCompatible_iff [FiniteDimensional ℝ F] :
     cov.IsCompatible ↔ ∀ {x : M} {X : Π x, TangentSpace I x} {σ τ : (x : M) → V x},
       MDiffAt (T% X) x → MDiffAt (T% σ) x → MDiffAt (T% τ) x →
-      fromTangentSpace _ (mfderiv% ⟪σ, τ⟫ x (X x)) = ⟪∇ X σ, τ⟫ x + ⟪σ, ∇ X τ⟫ x := by
+      mfderiv' I ⟪σ, τ⟫ x (X x) = ⟪∇ X σ, τ⟫ x + ⟪σ, ∇ X τ⟫ x := by
   refine ⟨fun hcov x X σ τ hX hσ hτ ↦ ?_, fun h ↦ ?_⟩
   · have H := congr($hcov x (σ x) (τ x) (X x))
     simp [compatibilityTensor_apply _ _ hσ hτ] at H
     linear_combination H
   ext x σ₀ τ₀ X₀
-  rw [compatibilityTensor_apply_eq_extend]
-  have h' := h (FiberBundle.mdifferentiableAt_extend I E X₀)
+  specialize h (FiberBundle.mdifferentiableAt_extend I E X₀)
     (FiberBundle.mdifferentiableAt_extend I F σ₀) (FiberBundle.mdifferentiableAt_extend I F τ₀)
-  simp [product] at h' ⊢
-  linear_combination (norm := skip) h'
-  ring_nf
+  simp [compatibilityTensor_apply_eq_extend] at h ⊢
+  linear_combination h
 
 end CovariantDerivative

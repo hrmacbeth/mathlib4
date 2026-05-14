@@ -254,7 +254,7 @@ section smul
 open NormedSpace ContinuousLinearMap
 
 variable {V : Type*} [NormedAddCommGroup V] [NormedSpace 𝕜 V]
-variable {f : M → 𝕜} {g : M → V}
+variable {f h : M → 𝕜} {g : M → V}
 
 /-- Given maps `f`, `g` from a manifold into a field `𝕜` and `𝕜`-vector space `V`, respectively, if
 at some point `x`, `f` has differential `f' : TangentSpace I x →L[𝕜] 𝕜` and `g` has differential
@@ -346,6 +346,12 @@ lemma fromTangentSpace_mfderiv_smul (hf : MDiffAt f x) (hg : MDiffAt g x) :
   rw [mfderiv_smul hf hg]
   rfl
 
+variable (I) in
+/-- The exterior derivative of a scalar function on `M`, as a section of the cotangent bundle. -/
+@[expose]
+noncomputable def mfderiv' (f : M → V) (x : M) : TangentSpace I x →L[𝕜] V :=
+  NormedSpace.fromTangentSpace (𝕜 := 𝕜) (f x) ∘L mfderiv I 𝓘(𝕜, V) f x
+
 /-- Given maps `f`, `g` from a manifold into a field `𝕜` and `𝕜`-vector space `V`, respectively, the
 formula for the `mfderiv` (differential) of their scalar multiplication `f • g`.
 
@@ -362,6 +368,12 @@ lemma fromTangentSpace_mfderiv_smul' (hf : MDiffAt f x) (hg : MDiffAt g x) :
     + toSpanSingleton 𝕜 (g x) ∘L (fromTangentSpace _).toContinuousLinearMap ∘L mfderiv% f x :=
   fromTangentSpace_mfderiv_smul hf hg
 
+lemma fromTangentSpace_mfderiv_smul'₁₇ (hf : MDiffAt f x) (hg : MDiffAt g x) :
+    mfderiv' I (f • g) x
+    = f x • mfderiv' I g x +
+    toSpanSingleton 𝕜 (g x) ∘L mfderiv' I f x :=
+  fromTangentSpace_mfderiv_smul hf hg
+
 /-- Given maps `f`, `g` from a manifold into a field `𝕜` and `𝕜`-vector space `V`, respectively, the
 formula for the `mfderiv` (differential) of their scalar multiplication `f • g` in the direction of
 the tangent vector `v`.
@@ -375,6 +387,24 @@ lemma fromTangentSpace_mfderiv_smul_apply (hf : MDiffAt f x) (hg : MDiffAt g x)
     fromTangentSpace _ (mfderiv% (f • g) x v)
     = f x • fromTangentSpace _ (mfderiv% g x v) + fromTangentSpace _ (mfderiv% f x v) • g x := by
   simpa using congr($(fromTangentSpace_mfderiv_smul hf hg) v)
+
+lemma fromTangentSpace_mfderiv_smul_apply₁₇ (hf : MDiffAt f x) (hg : MDiffAt g x)
+    (v : TangentSpace I x) :
+    mfderiv' I (f • g) x v
+    = f x • mfderiv' I g x v + mfderiv' I f x v • g x := by
+  simpa using congr($(fromTangentSpace_mfderiv_smul hf hg) v)
+
+lemma fromTangentSpace_mfderiv_mul_apply₁₇ (hf : MDiffAt f x) (hh : MDiffAt h x)
+    (v : TangentSpace I x) :
+    mfderiv' I (f * h) x v
+    = f x * mfderiv' I h x v + mfderiv' I f x v * h x := by
+  simpa using congr($(fromTangentSpace_mfderiv_smul hf hh) v)
+
+lemma fromTangentSpace_mfderiv_fun_mul_apply₁₇ (hf : MDiffAt f x) (hh : MDiffAt h x)
+    (v : TangentSpace I x) :
+    mfderiv' I (fun y ↦ f y * h y) x v
+    = f x * mfderiv' I h x v + mfderiv' I f x v * h x := by
+  simpa using congr($(fromTangentSpace_mfderiv_smul hf hh) v)
 
 /-- Given maps `f`, `g` from a manifold into a field `𝕜` and `𝕜`-vector space `V`, respectively, the
 formula for the `mfderiv` (differential) of their scalar multiplication `f • g` in the direction of
@@ -397,21 +427,23 @@ end smul
 
 /-! ### Exterior derivative of a scalar function -/
 
-/-- The exterior derivative of a scalar function on `M`, as a section of the cotangent bundle. -/
-noncomputable abbrev extDerivFun (g : M → F) :
-    Π x : M, TangentSpace I x →L[𝕜] F :=
-  fun x ↦ (NormedSpace.fromTangentSpace <| g x).toContinuousLinearMap ∘L (mfderiv% g x)
+-- /-- The exterior derivative of a scalar function on `M`, as a section of the cotangent bundle. -/
+-- noncomputable abbrev extDerivFun (g : M → F) :
+--     Π x : M, TangentSpace I x →L[𝕜] F :=
+--   fun x ↦ (NormedSpace.fromTangentSpace <| g x).toContinuousLinearMap ∘L (mfderiv% g x)
 
-@[simp]
-lemma extDerivFun_add {g g' : M → F} {x : M} (hg : MDiffAt g x) (hg' : MDiffAt g' x) :
-    extDerivFun (g + g') x = extDerivFun (I := I) g x + extDerivFun g' x := by
-  simp [extDerivFun, mfderiv_add hg hg']
+@[simp, to_fun]
+lemma mfderiv'_add {g g' : M → F} {x : M} (hg : MDiffAt g x) (hg' : MDiffAt g' x) :
+    mfderiv' I (g + g') x = mfderiv' I g x + mfderiv' I g' x := by
+  simp [mfderiv', mfderiv_add hg hg']
   congr
 
+alias mfderiv'_fun_add := fun_mfderiv'_add
+
 @[simp]
-lemma extDerivFun_zero {x : M} : extDerivFun (I := I) (0 : M → F) x = 0 := by
-  have : extDerivFun (0 : M → F) x + extDerivFun (0 : M → F) x =
-      extDerivFun (I := I) (0 : M → F) x := by
-    rw [← extDerivFun_add (by exact mdifferentiable_const ..) (by exact mdifferentiable_const ..)]
+lemma mfderiv'_zero {x : M} : mfderiv' (I := I) (0 : M → F) x = 0 := by
+  have : mfderiv' I (0 : M → F) x + mfderiv' I (0 : M → F) x =
+      mfderiv' I (0 : M → F) x := by
+    rw [← mfderiv'_add (by exact mdifferentiable_const ..) (by exact mdifferentiable_const ..)]
     simp
   simpa using this
